@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzaria</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Pizzaria</h1>
+    <h2>Menu</h2>
+    <form>
+        <label for="pizza">Escolha uma pizza:</label>
+        <select id="pizza" name="pizza">
+            <option value="Margherita - R$ 20,00">Margherita - R$ 20,00</option>
+            <option value="Pepperoni - R$ 25,00">Pepperoni - R$ 25,00</option>
+            <option value="Quatro Queijos - R$ 30,00">Quatro Queijos - R$ 30,00</option>
+        </select>
+        <br><br>
+        <label for="bebida">Escolha uma bebida (cortesia):</label>
+        <select id="bebida" name="bebida">
+            <option value="Coca-Cola">Coca-Cola</option>
+            <option value="Sprite">Sprite</option>
+            <option value="Água">Água</option>
+        </select>
+        <br><br>
+        <input type="button" value="Finalizar pedido" onclick="finalizarPedido()">
+    </form>
+    <div id="resultado"></div>
+
+    <script>
+        function finalizarPedido() {
+            const pizza = document.getElementById("pizza").value;
+            const bebida = document.getElementById("bebida").value;
+
+            const precoPizza = parseFloat(pizza.split("R$ ")[1].replace(",", "."));
+            const valorTotal = precoPizza;
+
+            const resultado = `
+        <h2>Pedido:</h2>
+        <p>Pizza: ${pizza.split(" -")[0]}</p>
+        <p>Bebida (cortesia): ${bebida}</p>
+        <p>Valor total: R$ ${valorTotal.toFixed(2).replace(".", ",")}</p>
+        <p>Obrigada pela escolha!</p>
+      `;
+
+            document.getElementById("resultado").innerHTML = resultado;
+        }
+    </script>
+</body>
+
+</html>
