@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descubra a Palavra</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        input,
+        button {
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .palavra-secreta span {
+            font-size: 24px;
+            margin: 0 5px;
+            border-bottom: 2px solid #000;
+            display: inline-block;
+            width: 30px;
+            text-align: center;
+        }
+
+        .letras-utilizadas {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Descubra a Palavra</h1>
+
+    <!-- Parte 1: Cadastro de palavras -->
+    <h2>Cadastro de Palavras</h2>
+    <form id="formCadastro">
+        <input type="text" id="palavra" placeholder="Palavra" required>
+        <input type="text" id="dica" placeholder="Dica" required>
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <!-- Parte 2: Listagem de palavras -->
+    <h2>Palavras Cadastradas</h2>
+    <ul id="listaPalavras"></ul>
+
+    <!-- Parte 3: Jogo -->
+    <h2>Jogo</h2>
+    <button id="iniciarJogo">Iniciar Jogo</button>
+    <p id="dicaJogo"></p>
+    <div class="palavra-secreta" id="palavraSecreta"></div>
+    <input type="text" id="letraJogador" maxlength="1" placeholder="Digite uma letra">
+    <button id="btnChutar">Chutar</button>
+    <p class="letras-utilizadas" id="letrasUsadas"></p>
+    <p id="resultado"></p>
+
+    <script src="script.js">
+        // Arrays para armazenar palavras e dicas
+        const palavras = [];
+        const dicas = [];
+
+        // Elementos do DOM
+        const formCadastro = document.querySelector("#formCadastro");
+        const listaPalavras = document.querySelector("#listaPalavras");
+        const iniciarJogo = document.querySelector("#iniciarJogo");
+        const dicaJogo = document.querySelector("#dicaJogo");
+        const palavraSecretaDiv = document.querySelector("#palavraSecreta");
+        const letraJogador = document.querySelector("#letraJogador");
+        const btnChutar = document.querySelector("#btnChutar");
+        const letrasUsadasP = document.querySelector("#letrasUsadas");
+        const resultadoP = document.querySelector("#resultado");
+
+        let palavraAtual = "";
+        let letrasCorretas = [];
+        let letrasUsadas = [];
+
+        // Cadastro de palavras
+        formCadastro.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const palavra = document.querySelector("#palavra").value.trim().toLowerCase();
+            const dica = document.querySelector("#dica").value.trim();
+            if (palavra && dica) {
+                palavras.push(palavra);
+                dicas.push(dica);
+                atualizarLista();
+                formCadastro.reset();
+            }
+        });
+
+        function atualizarLista() {
+            listaPalavras.innerHTML = "";
+            palavras.forEach((p, i) => {
+                const li = document.createElement("li");
+                li.textContent = `${p} - ${dicas[i]}`;
+                listaPalavras.appendChild(li);
+            });
+        }
+
+        // Iniciar jogo
+        iniciarJogo.addEventListener("click", () => {
+            if (palavras.length === 0) {
+                alert("Cadastre pelo menos uma palavra!");
+                return;
+            }
+            const indice = Math.floor(Math.random() * palavras.length);
+            palavraAtual = palavras[indice];
+            letrasCorretas = Array(palavraAtual.length).fill("_");
+            letrasUsadas = [];
+            dicaJogo.textContent = "Dica: " + dicas[indice];
+            atualizarPalavraSecreta();
+            letrasUsadasP.textContent = "";
+            resultadoP.textContent = "";
+        });
+
+        // Atualizar exibição da palavra secreta
+        function atualizarPalavraSecreta() {
+            palavraSecretaDiv.innerHTML = "";
+            letrasCorretas.forEach(letra => {
+                const span = document.createElement("span");
+                span.textContent = letra;
+                palavraSecretaDiv.appendChild(span);
+            });
+        }
+
+        // Chutar letra
+        btnChutar.addEventListener("click", () => {
+            const letra = letraJogador.value.toLowerCase();
+            letraJogador.value = "";
+
+            if (letra === "" || letrasUsadas.includes(letra)) {
+                return;
+            }
+
+            letrasUsadas.push(letra);
+            letrasUsadasP.textContent = "Letras usadas: " + letrasUsadas.join(", ");
+
+            let acertou = false;
+            for (let i = 0; i < palavraAtual.length; i++) {
+                if (palavraAtual[i] === letra) {
+                    letrasCorretas[i] = letra;
+                    acertou = true;
+                }
+            }
+
+            atualizarPalavraSecreta();
+
+            if (!letrasCorretas.includes("_")) {
+                resultadoP.textContent = "Parabéns! Você descobriu a palavra!";
+            } else if (!acertou) {
+                resultadoP.textContent = "Tente outra letra!";
+            }
+        });
+
+    </script>
+</body>
