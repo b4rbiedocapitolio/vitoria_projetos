@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Somar Moedas</title>
+    <title>Soma de Moedas</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,19 +20,17 @@
             margin-bottom: 20px;
         }
         .moeda {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            padding: 5px;
         }
-        .moeda img {
+        .moeda.selecionada {
+            border-color: green;
+        }
+        img {
             width: 80px;
             height: 80px;
-            margin-bottom: 5px;
-        }
-        input[type="number"] {
-            width: 80px;
-            padding: 5px;
-            text-align: center;
         }
         button {
             padding: 10px 20px;
@@ -47,21 +45,10 @@
     </style>
 </head>
 <body>
-    <h1>Somar Moedas</h1>
+    <h1>Selecione duas moedas e some os valores</h1>
 
-    <div class="moedas">
-        <div class="moeda">
-            <img src="img/moeda1.png" alt="Moeda 1">
-            <input type="number" id="moeda1" placeholder="Valor">
-        </div>
-        <div class="moeda">
-            <img src="img/moeda2.png" alt="Moeda 2">
-            <input type="number" id="moeda2" placeholder="Valor">
-        </div>
-        <div class="moeda">
-            <img src="img/moeda3.png" alt="Moeda 3">
-            <input type="number" id="moeda3" placeholder="Valor">
-        </div>
+    <div class="moedas" id="moedasContainer">
+        <!-- As moedas serão geradas dinamicamente -->
     </div>
 
     <button id="verificar">Verificar Soma</button>
@@ -69,25 +56,63 @@
     <div id="resultado"></div>
 
     <script>
-        const btn = document.querySelector("#verificar");
+        // Lista de moedas e seus valores
+        const listaMoedas = [
+            { valor: 0.01, imagem: "img/moeda1.png" },
+            { valor: 0.05, imagem: "img/moeda2.png" },
+            { valor: 0.10, imagem: "img/moeda3.png" },
+            { valor: 0.25, imagem: "img/moeda4.png" },
+            { valor: 0.50, imagem: "img/moeda5.png" },
+            { valor: 1.00, imagem: "img/moeda6.png" }
+        ];
+
+        const moedasContainer = document.querySelector("#moedasContainer");
         const resultado = document.querySelector("#resultado");
+        let selecionadas = [];
 
-        btn.addEventListener("click", () => {
-            // Pega os valores digitados pelo usuário
-            const val1 = Number(document.querySelector("#moeda1").value);
-            const val2 = Number(document.querySelector("#moeda2").value);
-            const val3 = Number(document.querySelector("#moeda3").value);
+        // Gera as imagens das moedas
+        listaMoedas.forEach((moeda, i) => {
+            const div = document.createElement("div");
+            div.classList.add("moeda");
+            const img = document.createElement("img");
+            img.src = moeda.imagem;
+            img.alt = `Moeda ${moeda.valor.toFixed(2)}`;
+            div.appendChild(img);
+            moedasContainer.appendChild(div);
 
-            // Soma dos valores corretos das moedas
-            const somaCorreta = 1 + 0.5 + 0.25; // por exemplo, valores reais das moedas
-            const somaUsuario = val1 + val2 + val3;
+            // Clique na moeda
+            div.addEventListener("click", () => {
+                if (selecionadas.includes(i)) {
+                    // Deseleciona se já estava selecionada
+                    selecionadas = selecionadas.filter(index => index !== i);
+                    div.classList.remove("selecionada");
+                } else if (selecionadas.length < 2) {
+                    selecionadas.push(i);
+                    div.classList.add("selecionada");
+                }
+            });
+        });
 
-            // Verifica se o usuário acertou
-            if (somaUsuario === somaCorreta) {
-                resultado.textContent = `Parabéns! A soma está correta: R$ ${somaUsuario.toFixed(2)}`;
+        // Botão de verificação
+        document.querySelector("#verificar").addEventListener("click", () => {
+            if (selecionadas.length !== 2) {
+                resultado.textContent = "Selecione exatamente duas moedas!";
+                resultado.style.color = "red";
+                return;
+            }
+
+            const num1 = listaMoedas[selecionadas[0]].valor;
+            const num2 = listaMoedas[selecionadas[1]].valor;
+            const soma = num1 + num2;
+
+            // Soma correta (exemplo: vamos supor que o valor correto seja 0.75)
+            const valorCorreto = 0.75;
+
+            if (soma === valorCorreto) {
+                resultado.textContent = `Parabéns! Você acertou a soma: R$ ${soma.toFixed(2)}`;
                 resultado.style.color = "green";
             } else {
-                resultado.textContent = `Ops! A soma está incorreta. Você somou R$ ${somaUsuario.toFixed(2)} e o correto é R$ ${somaCorreta.toFixed(2)}`;
+                resultado.textContent = `Ops! Você somou R$ ${soma.toFixed(2)} e o correto é R$ ${valorCorreto.toFixed(2)}`;
                 resultado.style.color = "red";
             }
         });
