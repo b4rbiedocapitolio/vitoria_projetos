@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Filmes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        input, select {
+            padding: 5px;
+        }
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cadastro de Filmes</h1>
+
+    <form id="formFilmes">
+        <input type="text" id="titulo" placeholder="Título do filme" required>
+        <select id="genero" required>
+            <option value="">Selecione o gênero</option>
+            <option value="Ação">Ação</option>
+            <option value="Comédia">Comédia</option>
+            <option value="Drama">Drama</option>
+            <option value="Terror">Terror</option>
+            <option value="Ficção">Ficção</option>
+        </select>
+        <input type="submit" value="Adicionar Filme">
+    </form>
+
+    <table id="tabelaFilmes">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Gênero</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Filmes serão inseridos aqui -->
+        </tbody>
+    </table>
+
+    <script>
+        const form = document.querySelector("#formFilmes");
+        const tabelaBody = document.querySelector("#tabelaFilmes tbody");
+
+        // Array para armazenar filmes
+        const filmes = [];
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const titulo = document.querySelector("#titulo").value;
+            const genero = document.querySelector("#genero").value;
+
+            // Adiciona filme ao array
+            filmes.push({ titulo, genero });
+
+            // Atualiza a tabela
+            atualizarTabela();
+
+            // Limpa formulário
+            form.reset();
+        });
+
+        function atualizarTabela() {
+            tabelaBody.innerHTML = ""; // Limpa a tabela
+
+            filmes.forEach((filme, index) => {
+                const tr = document.createElement("tr");
+
+                // Colunas de título e gênero
+                const tdTitulo = document.createElement("td");
+                tdTitulo.textContent = filme.titulo;
+                tr.appendChild(tdTitulo);
+
+                const tdGenero = document.createElement("td");
+                tdGenero.textContent = filme.genero;
+                tr.appendChild(tdGenero);
+
+                // Coluna de ações (botão excluir)
+                const tdAcoes = document.createElement("td");
+                const btnExcluir = document.createElement("button");
+                btnExcluir.textContent = "Excluir";
+                btnExcluir.addEventListener("click", () => {
+                    filmes.splice(index, 1); // Remove do array
+                    atualizarTabela();       // Atualiza a tabela
+                });
+                tdAcoes.appendChild(btnExcluir);
+                tr.appendChild(tdAcoes);
+
+                tabelaBody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
