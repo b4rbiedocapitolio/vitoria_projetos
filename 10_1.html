@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas</title>
+
+    <!-- Estilos CSS -->
+    <style>
+        /* Aplica borda inferior ao título */
+        h1 {
+            border-bottom: 2px inset #ccc;
+            /* "inset" é válido, "insert" não é */
+            padding-bottom: 5px;
+        }
+
+        /* Estilo da tarefa selecionada */
+        .tarefa-selecionada {
+            color: red;
+            font-style: italic;
+        }
+
+        /* Estilo da tarefa normal */
+        .tarefa-normal {
+            color: black;
+        }
+
+        /* Estilo de imagem exemplo (não usado aqui mas deixei corrigido) */
+        img.bloco {
+            height: 84px;
+            width: 84px;
+            /* Corrigido "widht" */
+            margin-bottom: 5px;
+            /* Corrigido "Spx" */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Estrutura com Bootstrap (se quiser usar precisa importar) -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Coluna com imagem -->
+            <div class="col-sm-4">
+                <img src="img/e10_1.jpg" alt="tarefas" class="img-fluid">
+            </div>
+
+            <!-- Coluna com lista de tarefas -->
+            <div class="col-sm-8" id="divQuadro">
+                <h1>Lista de Atividades</h1>
+
+                <!-- Formulário para adicionar tarefas -->
+                <form>
+                    <p>
+                        <label for="inTarefa">Tarefa:</label>
+                        <input type="text" class="form-control" id="inTarefa" required autofocus>
+                    </p>
+                    <p>
+                        <input type="submit" class="btn btn-primary" value="Adicionar &#10002;">
+                        <input type="button" class="btn btn-info" value="Selecionar &#8645;" id="btSelecionar">
+                        <input type="button" class="btn btn-danger" value="Retirar" id="btRetirar">
+                        <input type="button" class="btn btn-success" value="Gravar &#9673;" id="btGravar">
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script JavaScript -->
+    <script>
+        // Pegando o formulário e o container onde as tarefas serão inseridas
+        const frm = document.querySelector("form");
+        const divQuadro = document.querySelector("#divQuadro");
+
+        // Ao enviar o formulário
+        frm.addEventListener("submit", (e) => {
+            e.preventDefault(); // Impede que a página recarregue
+
+            const tarefa = frm.inTarefa.value; // Pega o valor digitado
+            const h5 = document.createElement("h5"); // Cria elemento <h5> para a tarefa
+            h5.className = "tarefa-normal"; // Define como tarefa normal
+            const texto = document.createTextNode(tarefa); // Cria o texto com o valor digitado
+            h5.appendChild(texto); // Coloca o texto dentro do <h5>
+            divQuadro.appendChild(h5); // Adiciona no container
+
+            frm.inTarefa.value = ""; // Limpa o campo
+            frm.inTarefa.focus(); // Mantém foco no campo
+        });
+
+        // Botão Selecionar
+        document.querySelector("#btSelecionar").addEventListener("click", () => {
+            const tarefas = document.querySelectorAll("h5");
+
+            if (tarefas.length === 0) {
+                alert("Não há tarefas para selecionar");
+                return;
+            }
+
+            let aux = -1;
+
+            // Procura a tarefa que está selecionada atualmente
+            for (let i = 0; i < tarefas.length; i++) {
+                if (tarefas[i].className === "tarefa-selecionada") {
+                    tarefas[i].className = "tarefa-normal"; // Volta para normal
+                    aux = i;
+                    break;
+                }
+            }
+
+            // Se estava na última, volta para antes do início
+            if (aux === tarefas.length - 1) {
+                aux = -1;
+            }
+
+            // Seleciona a próxima
+            tarefas[aux + 1].className = "tarefa-selecionada";
+        });
+
+        // Botão Retirar
+        document.querySelector("#btRetirar").addEventListener("click", () => {
+            const tarefaSelecionada = document.querySelector(".tarefa-selecionada");
+
+            if (!tarefaSelecionada) {
+                alert("Selecione uma tarefa para retirar");
+                return;
+            }
+
+            divQuadro.removeChild(tarefaSelecionada);
+        });
+    </script>
+</body>
+
+</html>
