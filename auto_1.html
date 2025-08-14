@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dicas de Transição de Carreira</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input,
+        button {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        h3 {
+            color: #2c3e50;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Transição de Carreira</h1>
+    <form id="formCarreira">
+        <p>
+            Nome: <input type="text" id="nome" required><br>
+            Área atual: <input type="text" id="atual" required><br>
+            Área desejada: <input type="text" id="futura" required><br>
+        </p>
+        <button type="submit">Receber Dica</button>
+    </form>
+    <h3 id="mensagem"></h3>
+
+    <script>
+        const dicas = [
+            "Cada passo conta. Pequenas ações diárias constroem grandes mudanças.",
+            "Acredite no seu potencial, mesmo quando ninguém mais acreditar.",
+            "Os desafios são oportunidades disfarçadas de dificuldade.",
+            "Você não precisa ser perfeito para começar, mas precisa começar para ser ótimo.",
+            "O aprendizado é a ponte entre onde você está e onde quer chegar.",
+            "Seu futuro começa no momento em que você decide agir."
+        ];
+
+        document.getElementById("formCarreira").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const nome = document.getElementById("nome").value.trim();
+            const atual = document.getElementById("atual").value.trim();
+            const futura = document.getElementById("futura").value.trim();
+
+            const dicaAleatoria = dicas[Math.floor(Math.random() * dicas.length)];
+
+            document.getElementById("mensagem").innerHTML =
+                `Olá <strong>${nome}</strong>, que bom que está aqui e que deseja migrar de <strong>${atual}</strong> para <strong>${futura}</strong>!<br><br>
+                💡 ${dicaAleatoria}`;
+        });
+    </script>
+</body>
+
+</html>
