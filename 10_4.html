@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Apostas - Jockey Clube</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        input, select, button {
+            padding: 5px;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #resultado {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Controle de Apostas - Jockey Clube</h1>
+
+    <form id="formApostas">
+        <input type="text" id="apostador" placeholder="Nome do apostador" required>
+        <select id="numeroCavalo" required>
+            <option value="">Número do cavalo</option>
+            <option value="1">Cavalo 1</option>
+            <option value="2">Cavalo 2</option>
+            <option value="3">Cavalo 3</option>
+            <option value="4">Cavalo 4</option>
+            <option value="5">Cavalo 5</option>
+        </select>
+        <input type="number" id="valorAposta" placeholder="Valor da aposta (R$)" min="1" required>
+        <input type="submit" value="Registrar Aposta">
+    </form>
+
+    <table id="tabelaApostas">
+        <thead>
+            <tr>
+                <th>Apostador</th>
+                <th>Cavalo</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Apostas serão exibidas aqui -->
+        </tbody>
+    </table>
+
+    <div style="text-align:center; margin-top:20px;">
+        <input type="number" id="cavaloVencedor" placeholder="Número do cavalo vencedor" min="1" max="5">
+        <button id="calcularResultado">Calcular Resultado</button>
+    </div>
+
+    <div id="resultado"></div>
+
+    <script>
+        // Array para armazenar as apostas
+        const apostas = [];
+
+        // Função para registrar uma aposta
+        function registrarAposta(nome, cavalo, valor) {
+            apostas.push({ nome, cavalo, valor });
+        }
+
+        // Função para atualizar a tabela de apostas
+        function atualizarTabela() {
+            const tbody = document.querySelector("#tabelaApostas tbody");
+            tbody.innerHTML = "";
+            apostas.forEach(aposta => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td>${aposta.nome}</td><td>${aposta.cavalo}</td><td>R$ ${aposta.valor.toFixed(2)}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Função que calcula os resultados
+        function calcularResultado(vencedor) {
+            let totalGeral = 0;
+            let totalVencedor = 0;
+
+            apostas.forEach(aposta => {
+                totalGeral += aposta.valor;
+                if (aposta.cavalo == vencedor) {
+                    totalVencedor += aposta.valor;
+                }
+            });
+
+            return { totalGeral, totalVencedor };
+        }
+
+        // Eventos
+        const form = document.querySelector("#formApostas");
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const nome = document.querySelector("#apostador").value;
+            const cavalo = document.querySelector("#numeroCavalo").value;
+            const valor = parseFloat(document.querySelector("#valorAposta").value);
+
+            registrarAposta(nome, cavalo, valor);
+            atualizarTabela();
+
+            form.reset();
+            document.querySelector("#apostador").focus();
+        });
+
+        document.querySelector("#calcularResultado").addEventListener("click", () => {
+            const vencedor = document.querySelector("#cavaloVencedor").value;
+            if (!vencedor) {
+                alert("Informe o número do cavalo vencedor!");
+                return;
+            }
+            const resultado = calcularResultado(vencedor);
+            document.querySelector("#resultado").innerHTML = 
+                `Total de apostas: R$ ${resultado.totalGeral.toFixed(2)}<br>
+                 Total do cavalo vencedor (Cavalo ${vencedor}): R$ ${resultado.totalVencedor.toFixed(2)}`;
+        });
+    </script>
+</body>
+</html>
