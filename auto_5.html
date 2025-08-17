@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livro Caixa Completo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #formulario {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #formulario label {
+            min-width: 120px;
+        }
+
+        #formulario input,
+        #formulario select,
+        #formulario button {
+            padding: 5px;
+        }
+
+        #tabela,
+        #tabela-parcelas {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        #label-parcelas {
+            display: none;
+        }
+
+        #totais,
+        #totais-tipo,
+        #totais-parcelas {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Livro Caixa Completo</h1>
+
+    <form id="formulario">
+        <label for="data">Data:</label>
+        <input type="date" id="data" name="data">
+
+        <label for="tipo">Tipo de pagamento:</label>
+        <select id="tipo" name="tipo">
+            <option value="pix">Pix</option>
+            <option value="especie">Espécie</option>
+            <option value="credito">Cartão de Crédito</option>
+            <option value="debito">Cartão de Débito</option>
+        </select>
+
+        <label for="valor">Valor:</label>
+        <input type="number" id="valor" name="valor" step="0.01">
+
+        <label for="parcelas" id="label-parcelas">Número de parcelas:</label>
+        <input type="number" id="parcelas" name="parcelas" disabled>
+
+        <button id="btn-adicionar">Adicionar</button>
+    </form>
+
+    <table id="tabela">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Tipo de pagamento</th>
+                <th>Valor</th>
+                <th>Parcelas</th>
+            </tr>
+        </thead>
+        <tbody id="corpo-tabela"></tbody>
+    </table>
+
+    <div id="totais">Total geral: R$ 0.00 | Total parcelado: R$ 0.00</div>
+    <div id="totais-tipo">Totais por tipo: Pix: R$ 0.00 | Espécie: R$ 0.00 | Crédito: R$ 0.00 | Débito: R$ 0.00</div>
+    <div id="totais-parcelas">
+        <h3>Distribuição de parcelas:</h3>
+        <ul id="lista-parcelas"></ul>
+    </div>
+
+    <button id="btn-zera">Zerar</button>
+
+    <script>
+        let dados = [];
+        let corpoTabela = document.getElementById('corpo-tabela');
+        let btnAdicionar = document.getElementById('btn-adicionar');
+        let btnZera = document.getElementById('btn-zera');
+        let tipoPagamento = document.getElementById('tipo');
+        let parcelasInput = document.getElementById('parcelas');
+        let labelParcelas = document.getElementById('label-parcelas');
+        let divTotais = document.getElementById('totais');
+        let divTotaisTipo = document.getElementById('totais-tipo');
+        let listaParcelas = document.getElementById('lista-parcelas');
+
+        tipoPagamento.addEventListener('change', (e) => {
+            if (e.target.value === 'credito') {
+                parcelasInput.disabled = false;
+                labelParcelas.style.display = 'block';
+            } else {
+                parcelasInput.disabled = true;
+                labelParcelas.style.display = 'none';
+                parcelasInput.value = '';
+            }
+        });
+
+        btnAdicionar.addEventListener('click', (e) => {
+            e.preventDefault();
+            let data = document.getElementById('data').value;
+            let tipo = tipoPagamento.value;
+            let valor = parseFloat(document.getElementById('valor').value);
+            let parcelas = tipo === 'credito' ? parseInt(parcelasInput.value) : null;
+
+            if (!data || !valor || (tipo === 'credito' && !parcelas)) {
+                alert("Por favor, preencha todos os campos corretamente!");
+                return;
+            }
+
+            dados.push({
+                data,
+                tipo,
+                valor: valor.toFixed(2),
+                parcelas
+            });
+
+            atualizaTabela();
+            document.getElementById('formulario').reset();
+            parcelasInput.disabled = true;
+            labelParcelas.style.display = 'none';
+        });
+
+        btnZera.addEventListener('click', () => {
+            dados = [];
+            atualizaTabela();
+        });
+
+        function atualizaTabela() {
+            corpoTabela.innerHTML = '';
+            let totalGeral = 0;
+            let totalParcelado = 0;
+            let totaisTipo = { pix: 0, especie: 0, credito: 0, debito: 0 };
+            let parcelasDistribuidas = {};
+
+            dados.forEach(dado => {
+                let linha = document.createElement('tr');
+                linha.innerHTML = `
+                    <td>${dado.data}</td>
+                    <td>${dado.tipo}</td>
+                    <td>R$ ${dado.valor}</td>
+                    <td>${dado.parcelas ? dado.parcelas : '-'}</td>
+                `;
+                corpoTabela.appendChild(linha);
+
+                let valorNum = parseFloat(dado.valor);
+                totalGeral += valorNum;
+                totaisTipo[dado.tipo] += valorNum;
+
+                if (dado.parcelas) {
+                    totalParcelado += valorNum;
+                    let dataInicial = new Date(dado.data);
+                    let valorParcela = valorNum / dado.parcelas;
+
+                    for (let i = 0; i < dado.parcelas; i++) {
+                        let mes = dataInicial.getMonth() + 1 + i;
+                        let ano = dataInicial.getFullYear() + Math.floor((dataInicial.getMonth() + i) / 12);
+                        let mesCorrigido = (mes - 1) % 12 + 1;
+                        let key = `${ano}-${String(mesCorrigido).padStart(2, '0')}`;
+                        if (!parcelasDistribuidas[key]) parcelasDistribuidas[key] = 0;
+                        parcelasDistribuidas[key] += valorParcela;
+                    }
+                }
+            });
+
+            divTotais.textContent = `Total geral: R$ ${totalGeral.toFixed(2)} | Total parcelado: R$ ${totalParcelado.toFixed(2)}`;
+            divTotaisTipo.textContent = `Totais por tipo: Pix: R$ ${totaisTipo.pix.toFixed(2)} | Espécie: R$ ${totaisTipo.especie.toFixed(2)} | Crédito: R$ ${totaisTipo.credito.toFixed(2)} | Débito: R$ ${totaisTipo.debito.toFixed(2)}`;
+
+            listaParcelas.innerHTML = '';
+            Object.keys(parcelasDistribuidas).sort().forEach(key => {
+                let li = document.createElement('li');
+                li.textContent = `${key}: R$ ${parcelasDistribuidas[key].toFixed(2)}`;
+                listaParcelas.appendChild(li);
+            });
+        }
+    </script>
+</body>
+
+</html>
