@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Livro Caixa - Entregador</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #FFD700;
+            margin: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+
+        .form-container {
+            background: #111;
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 2px solid #FFD700;
+            border-radius: 5px;
+            background-color: #222;
+            color: #FFD700;
+        }
+
+        button {
+            background-color: #FFD700;
+            color: #000;
+            font-weight: bold;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #ffeb3b;
+        }
+
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background: #111;
+            border: 2px solid #FFD700;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #FFD700;
+            text-align: center;
+        }
+
+        th {
+            background-color: #FFD700;
+            color: #000;
+        }
+
+        .total {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>📒 Livro Caixa do Entregador</h1>
+
+    <div class="form-container">
+        <input type="date" id="dataEntrega">
+        <input type="text" id="descricao" placeholder="Descrição da entrega">
+        <input type="number" id="valor" placeholder="Valor recebido (R$)" step="0.01">
+        <button onclick="adicionarEntrega()">Adicionar</button>
+    </div>
+
+    <table id="tabelaEntregas">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Valor (R$)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="total" id="totalRecebido">Total Recebido: R$ 0,00</div>
+
+    <script>
+        let total = 0;
+
+        function adicionarEntrega() {
+            const data = document.getElementById("dataEntrega").value;
+            const descricao = document.getElementById("descricao").value;
+            const valor = parseFloat(document.getElementById("valor").value);
+
+            if (!data || !descricao || isNaN(valor)) {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            const tabela = document.getElementById("tabelaEntregas").getElementsByTagName("tbody")[0];
+            const novaLinha = tabela.insertRow();
+
+            novaLinha.insertCell(0).innerText = data;
+            novaLinha.insertCell(1).innerText = descricao;
+            novaLinha.insertCell(2).innerText = "R$ " + valor.toFixed(2);
+
+            total += valor;
+            document.getElementById("totalRecebido").innerText = "Total Recebido: R$ " + total.toFixed(2);
+
+            // limpar inputs
+            document.getElementById("descricao").value = "";
+            document.getElementById("valor").value = "";
+        }
+    </script>
+</body>
+
+</html>
