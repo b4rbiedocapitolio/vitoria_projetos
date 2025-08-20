@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diário da Pressão – com Gráficos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background: #f9f9f9;
+            color: #222
+        }
+
+        h1 {
+            text-align: center;
+            color: #b71c1c
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px
+        }
+
+        @media(max-width:900px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .1)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            text-align: center
+        }
+
+        th {
+            background: #1976d2;
+            color: #fff
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer
+        }
+
+        .btn-add {
+            background: #1976d2;
+            color: #fff
+        }
+
+        .btn-danger {
+            background: #c62828;
+            color: #fff
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🩺 Diário da Pressão com Gráficos</h1>
+
+    <div class="grid">
+        <!-- Registro -->
+        <div class="card">
+            <h2>Novo Registro</h2>
+            <form id="form">
+                <label>Data: <input type="date" id="data" required></label><br><br>
+                <label>Horário:
+                    <select id="sessao">
+                        <option>Manhã</option>
+                        <option>Tarde</option>
+                        <option>Noite</option>
+                    </select>
+                </label><br><br>
+                <label>Sistólica: <input type="number" id="sis" required></label><br><br>
+                <label>Diastólica: <input type="number" id="dia" required></label><br><br>
+                <button class="btn btn-add">Salvar</button>
+            </form>
+            <br>
+            <button id="btnCSV" class="btn">Exportar CSV</button>
+            <button id="btnLimpar" class="btn btn-danger">Apagar tudo</button>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="card">
+            <h2>Evolução no Mês</h2>
+            <canvas id="grafico"></canvas>
+        </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card" style="margin-top:20px">
+        <h2>Tabela Completa</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Horário</th>
+                    <th>Sistólica</th>
+                    <th>Diastólica</th>
+                </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const LS_KEY = "bp_log_grafico";
+        const $ = id => document.getElementById(id);
+        const form = $("form"), tbody = $("tbody");
+        let chart;
+
+        function readAll() { return JSON.parse(localStorage.getItem(LS_KEY) || "[]") }
+        function writeAll(d) { localStorage.setItem(LS_KEY, JSON.stringify(d)) }
+
+        form.addEventListener("submit", e => {
+            e.preventDefault();
+            const reg = {
+                data: $("data").value,
+                sessao: $("sessao").value,
+                sis: Number($("sis").value),
+                dia: Number($("dia").value)
+            }
+            if (!reg.data) return;
+            let arr = readAll(); arr.push(reg); writeAll(arr);
+            form.reset(); render();
+        });
+
+        $("btnLimpar").onclick = () => { if (confirm("Apagar todos os dados?")) { localStorage.removeItem(LS_KEY); render() } };
+        $("btnCSV").onclick = () => {
+            const arr = readAll();
+            if (!arr.length) { alert("Sem dados!"); return }
+            const csv = "Data;Horário;Sistólica;Diastólica\n" + arr.map(r => [r.data, r.sessao, r.sis, r.dia].join(";")).join("\n");
+            const blob = new Blob([csv], { type: "text/csv" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "pressao.csv"; a.click();
+        };
+
+        function render() {
+            const arr = readAll();
+            tbody.innerHTML = "";
+            arr.sort((a, b) => a.data.localeCompare(b.data));
+            arr.forEach(r => {
+                tbody.innerHTML += `<tr><td>${r.data}</td><td>${r.sessao}</td><td>${r.sis}</td><td>${r.dia}</td></tr>`;
+            });
+
+            // dados para gráfico
+            const labels = arr.map(r => r.data + "-" + r.sessao);
+            const sist = arr.map(r => r.sis);
+            const dias = arr.map(r => r.dia);
+
+            if (chart) chart.destroy();
+            const ctx = $("grafico").getContext("2d");
+            chart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels,
+                    datasets: [
+                        { label: "Sistólica", data: sist, borderColor: "#c62828", backgroundColor: "#ffcdd2", fill: false, tension: .2 },
+                        { label: "Diastólica", data: dias, borderColor: "#1976d2", backgroundColor: "#bbdefb", fill: false, tension: .2 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { min: 60, max: 200 } }
+                }
+            });
+        }
+
+        render();
+    </script>
+</body>
+
+</html>
