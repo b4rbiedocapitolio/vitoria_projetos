@@ -5,73 +5,145 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Livro Caixa Completo</title>
+    <!-- Importando ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background: #f9f9f9;
+            color: #333;
         }
 
         h1 {
             text-align: center;
+            color: #b71c1c;
+            text-shadow: 1px 1px 3px #888;
         }
 
         #formulario {
             margin-bottom: 20px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
             align-items: center;
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         #formulario label {
-            min-width: 120px;
+            min-width: 140px;
+            font-weight: bold;
+            color: #2e7d32;
         }
 
         #formulario input,
         #formulario select,
         #formulario button {
-            padding: 5px;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
         }
 
-        #tabela,
-        #tabela-parcelas {
+        #formulario button {
+            background: #2e7d32;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #formulario button:hover {
+            background: #1b5e20;
+        }
+
+        #tabela {
             border-collapse: collapse;
             width: 100%;
             margin-bottom: 10px;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         th,
         td {
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 12px;
             text-align: left;
         }
 
         th {
-            background-color: #f0f0f0;
+            background-color: #b71c1c;
+            color: white;
         }
 
-        #label-parcelas {
-            display: none;
+        tr:nth-child(even) {
+            background: #f4f4f4;
         }
 
         #totais,
         #totais-tipo,
         #totais-parcelas {
             font-weight: bold;
-            margin-top: 10px;
+            margin-top: 15px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #totais {
+            color: #b71c1c;
+        }
+
+        #totais-tipo {
+            color: #2e7d32;
+        }
+
+        #lista-parcelas {
+            list-style: none;
+            padding: 0;
+        }
+
+        #lista-parcelas li {
+            margin: 5px 0;
+            padding: 6px;
+            background: #f1f8e9;
+            border-left: 6px solid #2e7d32;
+            border-radius: 6px;
+        }
+
+        #btn-zera {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #b71c1c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #btn-zera:hover {
+            background: #7f0000;
         }
     </style>
 </head>
 
 <body>
-    <h1>Livro Caixa Completo</h1>
+    <h1><i class="fas fa-cash-register"></i> Livro Caixa Completo</h1>
 
     <form id="formulario">
-        <label for="data">Data:</label>
+        <label for="data"><i class="fas fa-calendar-alt"></i> Data:</label>
         <input type="date" id="data" name="data">
 
-        <label for="tipo">Tipo de pagamento:</label>
+        <label for="tipo"><i class="fas fa-credit-card"></i> Tipo de pagamento:</label>
         <select id="tipo" name="tipo">
             <option value="pix">Pix</option>
             <option value="especie">Espécie</option>
@@ -79,136 +151,39 @@
             <option value="debito">Cartão de Débito</option>
         </select>
 
-        <label for="valor">Valor:</label>
+        <label for="valor"><i class="fas fa-money-bill-wave"></i> Valor:</label>
         <input type="number" id="valor" name="valor" step="0.01">
 
-        <label for="parcelas" id="label-parcelas">Número de parcelas:</label>
+        <label for="parcelas" id="label-parcelas"><i class="fas fa-list-ol"></i> Número de parcelas:</label>
         <input type="number" id="parcelas" name="parcelas" disabled>
 
-        <button id="btn-adicionar">Adicionar</button>
+        <button id="btn-adicionar"><i class="fas fa-plus-circle"></i> Adicionar</button>
     </form>
 
     <table id="tabela">
         <thead>
             <tr>
-                <th>Data</th>
-                <th>Tipo de pagamento</th>
-                <th>Valor</th>
-                <th>Parcelas</th>
+                <th><i class="fas fa-calendar-alt"></i> Data</th>
+                <th><i class="fas fa-credit-card"></i> Tipo de pagamento</th>
+                <th><i class="fas fa-money-bill"></i> Valor</th>
+                <th><i class="fas fa-list-ol"></i> Parcelas</th>
             </tr>
         </thead>
         <tbody id="corpo-tabela"></tbody>
     </table>
 
-    <div id="totais">Total geral: R$ 0.00 | Total parcelado: R$ 0.00</div>
-    <div id="totais-tipo">Totais por tipo: Pix: R$ 0.00 | Espécie: R$ 0.00 | Crédito: R$ 0.00 | Débito: R$ 0.00</div>
+    <div id="totais"><i class="fas fa-coins"></i> Total geral: R$ 0.00 | Total parcelado: R$ 0.00</div>
+    <div id="totais-tipo"><i class="fas fa-chart-pie"></i> Totais por tipo: Pix: R$ 0.00 | Espécie: R$ 0.00 | Crédito:
+        R$ 0.00 | Débito: R$ 0.00</div>
     <div id="totais-parcelas">
-        <h3>Distribuição de parcelas:</h3>
+        <h3><i class="fas fa-calendar-check"></i> Distribuição de parcelas:</h3>
         <ul id="lista-parcelas"></ul>
     </div>
 
-    <button id="btn-zera">Zerar</button>
+    <button id="btn-zera"><i class="fas fa-trash-alt"></i> Zerar</button>
 
     <script>
-        let dados = [];
-        let corpoTabela = document.getElementById('corpo-tabela');
-        let btnAdicionar = document.getElementById('btn-adicionar');
-        let btnZera = document.getElementById('btn-zera');
-        let tipoPagamento = document.getElementById('tipo');
-        let parcelasInput = document.getElementById('parcelas');
-        let labelParcelas = document.getElementById('label-parcelas');
-        let divTotais = document.getElementById('totais');
-        let divTotaisTipo = document.getElementById('totais-tipo');
-        let listaParcelas = document.getElementById('lista-parcelas');
-
-        tipoPagamento.addEventListener('change', (e) => {
-            if (e.target.value === 'credito') {
-                parcelasInput.disabled = false;
-                labelParcelas.style.display = 'block';
-            } else {
-                parcelasInput.disabled = true;
-                labelParcelas.style.display = 'none';
-                parcelasInput.value = '';
-            }
-        });
-
-        btnAdicionar.addEventListener('click', (e) => {
-            e.preventDefault();
-            let data = document.getElementById('data').value;
-            let tipo = tipoPagamento.value;
-            let valor = parseFloat(document.getElementById('valor').value);
-            let parcelas = tipo === 'credito' ? parseInt(parcelasInput.value) : null;
-
-            if (!data || !valor || (tipo === 'credito' && !parcelas)) {
-                alert("Por favor, preencha todos os campos corretamente!");
-                return;
-            }
-
-            dados.push({
-                data,
-                tipo,
-                valor: valor.toFixed(2),
-                parcelas
-            });
-
-            atualizaTabela();
-            document.getElementById('formulario').reset();
-            parcelasInput.disabled = true;
-            labelParcelas.style.display = 'none';
-        });
-
-        btnZera.addEventListener('click', () => {
-            dados = [];
-            atualizaTabela();
-        });
-
-        function atualizaTabela() {
-            corpoTabela.innerHTML = '';
-            let totalGeral = 0;
-            let totalParcelado = 0;
-            let totaisTipo = { pix: 0, especie: 0, credito: 0, debito: 0 };
-            let parcelasDistribuidas = {};
-
-            dados.forEach(dado => {
-                let linha = document.createElement('tr');
-                linha.innerHTML = `
-                    <td>${dado.data}</td>
-                    <td>${dado.tipo}</td>
-                    <td>R$ ${dado.valor}</td>
-                    <td>${dado.parcelas ? dado.parcelas : '-'}</td>
-                `;
-                corpoTabela.appendChild(linha);
-
-                let valorNum = parseFloat(dado.valor);
-                totalGeral += valorNum;
-                totaisTipo[dado.tipo] += valorNum;
-
-                if (dado.parcelas) {
-                    totalParcelado += valorNum;
-                    let dataInicial = new Date(dado.data);
-                    let valorParcela = valorNum / dado.parcelas;
-
-                    for (let i = 0; i < dado.parcelas; i++) {
-                        let mes = dataInicial.getMonth() + 1 + i;
-                        let ano = dataInicial.getFullYear() + Math.floor((dataInicial.getMonth() + i) / 12);
-                        let mesCorrigido = (mes - 1) % 12 + 1;
-                        let key = `${ano}-${String(mesCorrigido).padStart(2, '0')}`;
-                        if (!parcelasDistribuidas[key]) parcelasDistribuidas[key] = 0;
-                        parcelasDistribuidas[key] += valorParcela;
-                    }
-                }
-            });
-
-            divTotais.textContent = `Total geral: R$ ${totalGeral.toFixed(2)} | Total parcelado: R$ ${totalParcelado.toFixed(2)}`;
-            divTotaisTipo.textContent = `Totais por tipo: Pix: R$ ${totaisTipo.pix.toFixed(2)} | Espécie: R$ ${totaisTipo.especie.toFixed(2)} | Crédito: R$ ${totaisTipo.credito.toFixed(2)} | Débito: R$ ${totaisTipo.debito.toFixed(2)}`;
-
-            listaParcelas.innerHTML = '';
-            Object.keys(parcelasDistribuidas).sort().forEach(key => {
-                let li = document.createElement('li');
-                li.textContent = `${key}: R$ ${parcelasDistribuidas[key].toFixed(2)}`;
-                listaParcelas.appendChild(li);
-            });
-        }
+        // O SEU SCRIPT ORIGINAL VAI AQUI (sem mudanças)
     </script>
 </body>
 
