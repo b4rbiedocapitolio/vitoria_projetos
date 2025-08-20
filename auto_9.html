@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Controle de Gastos Anuais - Imposto de Renda</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0A1F44;
+            /* azul escuro */
+            color: #E0F0FF;
+            /* azul claro */
+            margin: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4DA6FF;
+            margin-bottom: 10px;
+        }
+
+        .leao {
+            width: 120px;
+            margin: 10px auto;
+            display: block;
+        }
+
+        .form-container {
+            background: #142D5C;
+            border: 2px solid #4DA6FF;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: inline-block;
+            box-shadow: 0px 0px 10px #4DA6FF;
+        }
+
+        input,
+        select {
+            padding: 8px;
+            margin: 5px;
+            border: 2px solid #4DA6FF;
+            border-radius: 6px;
+            background-color: #0A1F44;
+            color: #E0F0FF;
+        }
+
+        button {
+            background-color: #4DA6FF;
+            color: #fff;
+            font-weight: bold;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #80C1FF;
+        }
+
+        table {
+            width: 90%;
+            margin: 0 auto 20px auto;
+            border-collapse: collapse;
+            background: #142D5C;
+            border: 2px solid #4DA6FF;
+            box-shadow: 0px 0px 10px #4DA6FF;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #4DA6FF;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4DA6FF;
+            color: #000;
+        }
+
+        .totais {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            background: #142D5C;
+            border: 2px solid #4DA6FF;
+            border-radius: 12px;
+            padding: 15px;
+            width: 60%;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0px 0px 10px #4DA6FF;
+        }
+
+        .grafico {
+            margin: 30px auto;
+            width: 400px;
+            height: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>📒 Livro de Gastos Anuais</h1>
+    <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Leão Imposto de Renda" class="leao">
+    <h2>Controle para o Imposto de Renda</h2>
+
+    <div class="form-container">
+        <input type="date" id="dataGasto">
+        <input type="text" id="descricao" placeholder="Descrição do gasto">
+        <input type="number" id="valor" placeholder="Valor (R$)" step="0.01">
+        <select id="categoria">
+            <option value="Educação">Educação</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Alimentação">Alimentação</option>
+            <option value="Outros">Outros</option>
+        </select>
+        <button onclick="adicionarGasto()">Adicionar</button>
+    </div>
+
+    <table id="tabelaGastos">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Valor (R$)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="totais">
+        <p id="totalGeral">Total Geral: R$ 0,00</p>
+        <p id="totalEducacao">Total Educação: R$ 0,00</p>
+        <p id="totalSaude">Total Saúde: R$ 0,00</p>
+        <p id="totalAlimentacao">Total Alimentação: R$ 0,00</p>
+        <p id="totalOutros">Total Outros: R$ 0,00</p>
+    </div>
+
+    <div class="grafico">
+        <canvas id="graficoGastos"></canvas>
+    </div>
+
+    <button onclick="baixarCSV()">💾 Baixar CSV</button>
+    <button onclick="baixarJSON()">💾 Baixar JSON</button>
+
+    <script>
+        let gastos = [];
+        let totais = {
+            geral: 0,
+            educacao: 0,
+            saude: 0,
+            alimentacao: 0,
+            outros: 0
+        };
+
+        const ctx = document.getElementById("graficoGastos").getContext("2d");
+        const grafico = new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: ["Educação", "Saúde", "Alimentação", "Outros"],
+                datasets: [{
+                    label: "Gastos",
+                    data: [0, 0, 0, 0],
+                    backgroundColor: ["#4DA6FF", "#FF6384", "#FFCE56", "#36A2EB"],
+                    borderColor: "#fff",
+                    borderWidth: 2
+                }]
+            }
+        });
+
+        function adicionarGasto() {
+            const data = document.getElementById("dataGasto").value;
+            const descricao = document.getElementById("descricao").value;
+            const valor = parseFloat(document.getElementById("valor").value);
+            const categoria = document.getElementById("categoria").value;
+
+            if (!data || !descricao || isNaN(valor)) {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            const novoGasto = { data, descricao, valor, categoria };
+            gastos.push(novoGasto);
+
+            const tabela = document.getElementById("tabelaGastos").getElementsByTagName("tbody")[0];
+            const novaLinha = tabela.insertRow();
+
+            novaLinha.insertCell(0).innerText = data;
+            novaLinha.insertCell(1).innerText = descricao;
+            novaLinha.insertCell(2).innerText = categoria;
+            novaLinha.insertCell(3).innerText = "R$ " + valor.toFixed(2);
+
+            totais.geral += valor;
+            if (categoria === "Educação") totais.educacao += valor;
+            if (categoria === "Saúde") totais.saude += valor;
+            if (categoria === "Alimentação") totais.alimentacao += valor;
+            if (categoria === "Outros") totais.outros += valor;
+
+            atualizarTotais();
+            atualizarGrafico();
+
+            document.getElementById("descricao").value = "";
+            document.getElementById("valor").value = "";
+        }
+
+        function atualizarTotais() {
+            document.getElementById("totalGeral").innerText = "Total Geral: R$ " + totais.geral.toFixed(2);
+            document.getElementById("totalEducacao").innerText = "Total Educação: R$ " + totais.educacao.toFixed(2);
+            document.getElementById("totalSaude").innerText = "Total Saúde: R$ " + totais.saude.toFixed(2);
+            document.getElementById("totalAlimentacao").innerText = "Total Alimentação: R$ " + totais.alimentacao.toFixed(2);
+            document.getElementById("totalOutros").innerText = "Total Outros: R$ " + totais.outros.toFixed(2);
+        }
+
+        function atualizarGrafico() {
+            grafico.data.datasets[0].data = [
+                totais.educacao,
+                totais.saude,
+                totais.alimentacao,
+                totais.outros
+            ];
+            grafico.update();
+        }
+
+        function baixarCSV() {
+            let csv = "Data,Descrição,Categoria,Valor (R$)\n";
+            gastos.forEach(g => {
+                csv += `${g.data},${g.descricao},${g.categoria},${g.valor.toFixed(2)}\n`;
+            });
+
+            const blob = new Blob([csv], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "gastos_anuais.csv";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function baixarJSON() {
+            const blob = new Blob([JSON.stringify(gastos, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "gastos_anuais.json";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>
